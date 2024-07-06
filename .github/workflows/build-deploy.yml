@@ -1,0 +1,36 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Adjust to your default branch name
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Linting and formatting check
+        run: |
+          npm run lint
+          # Add any additional formatting checks here
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        run: |
+          npm run export
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          touch out/.nojekyll  # Create .nojekyll file to avoid Jekyll processing
+          git add out/.nojekyll
+          git commit -m "Add .nojekyll file"
+          git subtree split --prefix out -b gh-pages
+          git push -f origin gh-pages:gh-pages
